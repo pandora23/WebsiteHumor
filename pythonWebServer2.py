@@ -33,7 +33,7 @@ import signal
 from scipy.stats.stats import pearsonr
 
 from tornado.options import define, options
-define("port", default=8204, type=int)
+define("port", default=8205, type=int)
 
 def css_files(self):
     return "style.css"
