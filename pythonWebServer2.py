@@ -33,7 +33,7 @@ import signal
 from scipy.stats.stats import pearsonr
 
 from tornado.options import define, options
-define("port", default=8200, type=int)
+define("port", default=8204, type=int)
 
 def css_files(self):
     return "style.css"
@@ -212,10 +212,6 @@ class FrequencyFinder(tornado.web.RequestHandler):
         bigramVectorizer = CountVectorizer(ngram_range=(1,2), token_pattern=r'\b\w+\b',min_df=1, max_features = 500);
         
         transformed = bigramVectorizer.fit_transform([Data.P1Dat,Data.P2Dat,Data.M1Dat,Data.M2Dat])
-
-        print(type(transformed))
-        print(transformed)
-        print(transformed[0])
         
         tags = bigramVectorizer.get_feature_names()
         print(tags)
@@ -255,10 +251,11 @@ class FrequencyFinder(tornado.web.RequestHandler):
             freqs = {}
             
             for word, freq in zip(tags,doc[0]):
-                freqs.update({word:int(freq)})
+                freqs.update({word:float(freq)})
 
             #sort by word and just grab fscore
             f.append([x[1] for x in sorted(freqs.items(), key=lambda x: x[0], reverse=True)])
+            
             #sort by score for displaying
             freqs = sorted(freqs.items(), key=lambda x: x[1], reverse=True)
             freqsToReturn.append(freqs)
@@ -272,19 +269,21 @@ class FrequencyFinder(tornado.web.RequestHandler):
 
         #calculate correlations
         
-        
+        print(f[0])
+        print(f[2])
 
         c1x = pearsonr(f[0],f[2])
-##        c1y = pearsonr(f[0],f[3])
-##        c2x = pearsonr(f[1],f[)
-##        c2y = pearsonr(p2,m2)
+        c1y = pearsonr(f[0],f[3])
+        c2x = pearsonr(f[1],f[2])
+        c2y = pearsonr(f[1],f[3])
 
         
         
         
         #return sorted top frequency words   
         returnPacket = {'P1Freq':countsToReturn[0],'P2Freq':countsToReturn[1],
-                        'M1Freq':countsToReturn[2],'M2Freq':countsToReturn[3], 'C1X':{'score':c1x}}
+                        'M1Freq':countsToReturn[2],'M2Freq':countsToReturn[3], 'C1X':{'score':c1x},
+                        'C1Y':{'score':c1y},'C2X':{'score':c2x},'C2Y':{'score':c2y}}
         self.write(returnPacket)
         self.finish()
 
