@@ -2,7 +2,7 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8194;
+var portNum = 8200;
 var dat = Object;
 var done= false;
 var count=0;
@@ -46,10 +46,11 @@ var runExperiment= function(){
 	
 	
 	
+	
 	$(".Freq1").text("Most frequent words that co-occur with "+ A +" given " + p1 + ":");
-	$(".Freq2").text = "Most frequent words that co-occur with "+ A +" given " + p2 + ":";
-	$(".Freq3").text = "Most frequent words that co-occur with "+ A +" given " + m1 + ":";
-	$(".Freq4").text = "Most frequent words that co-occur with "+ A +" given " + m2 + ":";
+	$(".Freq2").text("Most frequent words that co-occur with "+ A +" given " + p2 + ":");
+	$(".Freq3").text("Most frequent words that co-occur with "+ A +" given " + m1 + ":");
+	$(".Freq4").text("Most frequent words that co-occur with "+ A +" given " + m2 + ":");
 	
 	
 	
@@ -217,6 +218,7 @@ function getFrequencies(){
             //data : {site : urlX, which: whichList, AmbiguousWord: A}
             success: function(data){
 				displayCounts(data);
+				displayCorrelationAndVisualize(data);
 				
             },
 			error: function(XMLHttpRequest, textStatus, errorThrown) { 
@@ -227,6 +229,12 @@ function getFrequencies(){
 		
 };
 
+function displayCorrelationAndVisualize(data){
+	
+	c1x = data['C1X']['score'];
+	$('#c1x').text(c1x.toString());
+	//c1x = data['c1x']['score'];
+}
 function displayCounts(data){
 	console.log(data);
 	

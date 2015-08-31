@@ -16,6 +16,7 @@ from nltk import FreqDist
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import Normalizer
 from sklearn import metrics
 from sklearn.cluster import KMeans, MiniBatchKMeans
@@ -29,10 +30,10 @@ import csv
 import sklearn
 import numpy
 import signal
-
+from scipy.stats.stats import pearsonr
 
 from tornado.options import define, options
-define("port", default=8194, type=int)
+define("port", default=8200, type=int)
 
 def css_files(self):
     return "style.css"
@@ -47,6 +48,7 @@ class Data:
     M2Dat = ""
 
     counts = []
+    freqs = []
     
     freqP1 = {}
     freqP2 = {}
@@ -222,26 +224,71 @@ class FrequencyFinder(tornado.web.RequestHandler):
         #insert 0s if needed
 
         countsToReturn = []
+        freqsToReturn = []
 
-        minCount = 5
+        #just the frequency scores sorted
+        f=[]
+
         
+        #minCount = 5
+
+        tf_transformer = TfidfTransformer(use_idf=True).fit(transformed)
+        
+        tf = tf_transformer.transform(transformed)
+        
+        #print(X_train_tf.shape)
+
+
+        #establish counts
         for doc in transformed:
             doc = doc.toarray()
             counts = {}
+            
             for word, count in zip(tags,doc[0]):
                 counts.update({word:int(count)})
             counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
             countsToReturn.append(counts)
 
-        
-        #return sorted frequencies
+        #establish frequencies
+        for doc in tf:
+            doc = doc.toarray()
+            freqs = {}
             
-        returnPacket = {'P1Freq':countsToReturn[0],'P2Freq':countsToReturn[1],
-                        'M1Freq':countsToReturn[2], 'M2Freq': countsToReturn[3]}
-        self.write(returnPacket)
-        self.finish()
+            for word, freq in zip(tags,doc[0]):
+                freqs.update({word:int(freq)})
+
+            #sort by word and just grab fscore
+            f.append([x[1] for x in sorted(freqs.items(), key=lambda x: x[0], reverse=True)])
+            #sort by score for displaying
+            freqs = sorted(freqs.items(), key=lambda x: x[1], reverse=True)
+            freqsToReturn.append(freqs)
+        
         
 
+        #set data for frequencies and counts
+        Data.counts = countsToReturn
+        Data.freqs = freqsToReturn
+
+
+        #calculate correlations
+        
+        
+
+        c1x = pearsonr(f[0],f[2])
+##        c1y = pearsonr(f[0],f[3])
+##        c2x = pearsonr(f[1],f[)
+##        c2y = pearsonr(p2,m2)
+
+        
+        
+        
+        #return sorted top frequency words   
+        returnPacket = {'P1Freq':countsToReturn[0],'P2Freq':countsToReturn[1],
+                        'M1Freq':countsToReturn[2],'M2Freq':countsToReturn[3], 'C1X':{'score':c1x}}
+        self.write(returnPacket)
+        self.finish()
+
+        
 
         
             
