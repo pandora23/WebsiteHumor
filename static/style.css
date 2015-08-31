@@ -1,0 +1,251 @@
+/* Initial body */
+body {
+  left: 0;
+  margin: 0;
+  overflow: scroll;
+  position: relative;
+}
+
+/* Initial menu */
+.menu {
+  background: #202024 url('http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/uber/black-thread.png') repeat left top;
+  left: -285px;  /* start off behind the scenes */
+  height: 100%;
+  position: fixed;
+  width: 285px;
+}
+
+.pane1{
+	display:inline;
+}
+
+.greyText{
+	color: #121212;
+}
+
+.frequencyPane{
+	background-color: #F0F0FF;
+	left: 0px;
+	top: 500px;
+}
+
+.textsBox{
+	background-color: #FFF000;
+	overflow: scroll;
+}
+
+
+.container1 {
+	background-color: #FFF000;
+	width: 500px;
+	height: 450px;
+	position: fixed;
+	top: 80px;
+	left:5px;
+	padding: 20px;
+	//margin-left: 10px;
+	display: block;
+	
+}
+.container2{
+	background-color:#008800;
+	//display: inline;
+	width:500px;
+	height: 450px;
+	position: fixed;
+	top: 80px;
+	left: 550px;
+	//margin-left:555px;
+	//margin-top: 10px;
+	
+
+}
+
+.containerTexts{
+	background-color:#008808;
+	//display: inline;
+	width:500px;
+	height: 500px;
+	position: fixed;
+	top: 80px;
+	left: 1000px;
+	//margin-left:555px;
+	//margin-top: 10px;
+	
+
+}
+
+.resultsListP1{
+	overflow: scroll;
+	width:290px;
+	height:500px;
+}
+
+.allTextP1{
+	overflow: scroll;
+	width:300px;
+	height:500px;
+	
+}
+
+
+.websitesPanel{
+	display: inline-block;
+	width:2000px;
+	height:1000px;
+	position: fixed;
+	top: 655px;
+	left:0px;
+	background-color:#0FF00F;
+}
+
+.container3{
+	background-color:#0F00FF;
+	width: 1050px;
+	position: fixed;
+	top: 515px;
+	left: 05px;
+}
+
+.container4{
+	background-color:#FFFFF0;
+	width: 280px;
+	position: fixed;
+	top: 600px;
+	left: 5px;
+	display:block-inline;
+	overflow: scroll;
+}
+.container5{
+	background-color:#FFF0F0;
+	width: 280px;
+	height:300px;
+	position: fixed;
+	top: 600px;
+	left: 290px;
+	display:block-inline;
+	overflow: scroll;
+}
+.container6{
+	background-color:#F0FFF0;
+	width: 280px;
+	position: fixed;
+	top: 600px;
+	left: 580px;
+	display:block-inline;
+	overflow: scroll;
+}
+.container7{
+	background-color:#FF0FF0;
+	width: 280px;
+	position: fixed;
+	top: 600px;
+	left: 870px;
+	display:block-inline;
+	overflow: scroll;
+}
+
+.subpanel {
+	display:inline-block;
+	top:500px;
+	position:relative;
+	background-color:#FF00F0;
+}
+
+.frame1{
+	display:inline;
+}
+.navBar{
+	display: inline;
+	width: 1000px;
+	
+}
+
+.navBar h2 {
+	display: inline;
+}
+
+.navBar li {
+  display:inline;
+}
+
+.canvas{
+	width: 500px;
+	
+}
+
+/* Basic styling */
+
+.jumbotron {
+  background-image: url('http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/uber/bg.png'); 
+  height: 13%;
+  -webkit-background-size: cover;
+     -moz-background-size: cover;
+       -o-background-size: cover;
+          background-size: cover;
+}
+
+.jumbotron .container h1 {
+  font-size: 48px;
+  color: #fff;
+}
+
+.jumbotron p {
+  font-size: 20px;
+  color: #fff;
+}
+
+.classform{
+	display:block-inline;
+}
+
+.menu ul {
+  border-top: 1px solid #636366;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.inputForm {
+	background-color: #f7f7f7;
+	margin-left:10px;
+	display:inline-block;
+}
+
+.menu li {
+  border-bottom: 1px solid #636366;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 45px;
+  padding-bottom: 3px;
+  padding-left: 20px;
+  padding-top: 3px;
+}
+
+.menu a {
+  color: #fff;
+  font-size: 15px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.icon-close {
+  cursor: pointer;
+  padding-left: 10px;
+  padding-top: 10px;
+}
+
+.icon-menu {
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  padding-bottom: 25px;
+  padding-left: 25px;
+  padding-top: 25px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.icon-menu i {
+  margin-right: 5px;
+}
