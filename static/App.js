@@ -2,7 +2,7 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8205;
+var portNum = 8206;
 var dat = Object;
 var done= false;
 var count=0;
@@ -238,7 +238,7 @@ function displayCorrelationAndVisualize(data){
 	c2x = data['C2X']['score'];
 	$('#c2x').text(c2x.toString());
 	c2y = data['C2Y']['score'];
-	//$('#c2y').text(c1y.toString());
+	$('#c2y').text(c2y.toString());
 	//c1x = data['c1x']['score'];
 }
 function displayCounts(data){
