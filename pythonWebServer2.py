@@ -33,27 +33,43 @@ import signal
 from scipy.stats.stats import pearsonr
 
 from tornado.options import define, options
-define("port", default=8206, type=int)
+define("port", default=8335, type=int)
 
 def css_files(self):
     return "style.css"
 
 stopwords = nltk.corpus.stopwords.words('english')
 words = nltk.corpus.words.words()
+allData=object;
 
+class DataPoint:
+    def __init__(self):
+        self.P1Dat = ""
+        self.P2Dat = ""
+        self.M1Dat = ""
+        self.M2Dat = ""
+
+        self.counts = []
+        self.freqs = []
+        
+        self.freqP1 = {}
+        self.freqP2 = {}
+        self.freqM1 = {}
+        self.freqM2 = {}
+        
 class Data:
-    P1Dat = ""
-    P2Dat = ""
-    M1Dat = ""
-    M2Dat = ""
 
-    counts = []
-    freqs = []
-    
-    freqP1 = {}
-    freqP2 = {}
-    freqM1 = {}
-    freqM2 = {}
+    def __init__(self):
+        self.count = 0;
+        self.instances = list();
+        
+    def setNewData(self):
+        dp = DataPoint()
+        self.instances.append(dp)
+        
+        
+
+
     
 ngDist = 0
 FreqA = []
@@ -72,7 +88,7 @@ class IndexHandler(tornado.web.RequestHandler):
         self.render('page.html')
 
 
-def pageGrab(url, whichList, A, self):
+def pageGrab(url, whichList, A, idN, initialized, self):
     accepted = False
     try:
         if 'http://www.youtube.com' not in url:
@@ -145,32 +161,49 @@ def pageGrab(url, whichList, A, self):
                                 returnString = returnString + " " + token;
 
         
-        
+        print("id: "+str(idN))
         if(whichList == "P1"):
-            Data.P1Dat = Data.P1Dat + " " + returnString;
+            allData.instances[idN].P1Dat = allData.instances[idN].P1Dat + " " + returnString;
         if(whichList == "P2"):
-            Data.P2Dat = Data.P2Dat + " " + returnString;
+            allData.instances[idN].P2Dat = allData.instances[idN].P2Dat + " " + returnString;
         if(whichList == "M1"):
-            Data.M1Dat = Data.M1Dat + " " + returnString;
+            allData.instances[idN].M1Dat = allData.instances[idN].M1Dat + " " + returnString;
         if(whichList == "M2"):
-            Data.M2Dat = Data.M2Dat + " " + returnString;
+            allData.instances[idN].M2Dat = allData.instances[idN].M2Dat + " " + returnString;
             
         
-        returnPacket = {'texts':returnString,'which':whichList}
+        returnPacket = {'texts':returnString,'which':whichList, 'idNum':idN, 'initialized':initialized}
         self.write(returnPacket)
         self.finish()
         
     else:
         print('failed')
-        returnPacket = {'texts':"",'which':"fail"}
+        returnPacket = {'texts':"",'which':"fail", 'idNum':idN, 'initialized':initialized }
         self.write(returnPacket)
         self.finish()
 
 class WebSiteGrabberHandler(tornado.web.RequestHandler):
     def post(self):
 
+        #on first grab establishes a new Dataset for the user, and the id to return
+
+        dataInitialized = self.get_argument('dataInitialized')
+        print("initialized: "+ str(dataInitialized))
+        print(type(dataInitialized))
+
+        if dataInitialized == "false":
+            idN = allData.count;
+            allData.setNewData();
+            dataInitialized = True;
+            allData.count = allData.count + 1
+            print("numInstances " + str(len(allData.instances)))
+        else:
+            idN = self.get_argument('idNum');
+            idN= int(idN)
+            
         #grab url, convert from unicode to string
         url = self.get_argument('texts')
+        
         url=str(url)
         print("URL = "+url);
 
@@ -192,7 +225,7 @@ class WebSiteGrabberHandler(tornado.web.RequestHandler):
 ##        except:
 ##            print('not accepted')
 
-        p = multiprocessing.Process(target=pageGrab(url, whichList, A, self))
+        p = multiprocessing.Process(target=pageGrab(url, whichList, A, idN, dataInitialized, self))
         #time.sleep(5)
         #print(A)
         #p.join()
@@ -201,17 +234,30 @@ class WebSiteGrabberHandler(tornado.web.RequestHandler):
         
         
         
-        
 
+class Initializer(tornado.web.RequestHandler):
+    def get(self):
+        #idNum = self.get_argument('idNum')
+        idN = allData.count;
+        allData.setNewData();
+        dataInitialized = True;
+        allData.count = allData.count + 1
+        returnPacket = {'idNum':idN, 'initialized':dataInitialized}
+        self.write(returnPacket)
+        self.finish()
         
 class FrequencyFinder(tornado.web.RequestHandler):
-    def get(self):
+    def post(self):
         #ngramRange = (1, ngDist)
+
+        idNumber = self.get_argument('idNum')
+        idNumber = int(idNumber)
         print("trying something");
         
         bigramVectorizer = CountVectorizer(ngram_range=(1,2), token_pattern=r'\b\w+\b',min_df=1, max_features = 500);
         
-        transformed = bigramVectorizer.fit_transform([Data.P1Dat,Data.P2Dat,Data.M1Dat,Data.M2Dat])
+        transformed = bigramVectorizer.fit_transform([allData.instances[idNumber].P1Dat,allData.instances[idNumber].P2Dat,
+                                                      allData.instances[idNumber].M1Dat,allData.instances[idNumber].M2Dat])
         
         tags = bigramVectorizer.get_feature_names()
         print(tags)
@@ -263,8 +309,8 @@ class FrequencyFinder(tornado.web.RequestHandler):
         
 
         #set data for frequencies and counts
-        Data.counts = countsToReturn
-        Data.freqs = freqsToReturn
+        allData.instances[idNumber].counts = countsToReturn
+        allData.instances[idNumber].freqs = freqsToReturn
 
 
         #calculate correlations
@@ -294,9 +340,11 @@ class FrequencyFinder(tornado.web.RequestHandler):
 
 
 if __name__ == '__main__':
+    allData = Data();
     tornado.options.parse_command_line()
     app = tornado.web.Application(
-            handlers=[(r'/',IndexHandler), (r'/urlGrab/', WebSiteGrabberHandler), (r'/freqFinder/', FrequencyFinder)],
+            handlers=[(r'/',IndexHandler), (r'/urlGrab/', WebSiteGrabberHandler),
+                      (r'/freqFinder/', FrequencyFinder), (r'/initialize/', Initializer)],
             #template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path = os.path.join(os.path.dirname("__file__"), "static"),
             

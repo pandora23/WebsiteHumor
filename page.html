@@ -5,28 +5,31 @@
  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
  <script src="/static/App.js" type="text/javascript"></script>
  <script type="application/javascript">
-	var draw = function(){
+	var draw = function(c1x,c1y,c2x,c2y){
 		var canvas = document.getElementById("canvas1");
 		if (canvas.getContext) {
 			var ctx = canvas.getContext("2d");
 
-			ctx.fillStyle = "rgb(200,0,0)";
-			ctx.fillRect (10, 10, 55, 50);
-
-			ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-			ctx.fillRect (30, 30, 55, 50);
+			
+			//draw axis
+			var linePath = new Path2D();
+			linePath.moveTo(0,canvas.height-1);
+			linePath.lineTo(0,0);
+			linePath.moveTo(0,canvas.height-1);
+			linePath.lineTo(canvas.width-1,canvas.height-1);
+			ctx.stroke(linePath);
 			
 			var linePath = new Path2D();
-			linePath.moveTo(0,0);
-			linePath.lineTo(0,250);
-			linePath.moveTo(0,0);
-			linePath.lineTo(250,0);
+			linePath.moveTo(c1x*canvas.width,canvas.height-1-c1y*canvas.height);
+			linePath.lineTo(c2x*canvas.width,canvas.height-1-c2y*canvas.height);
 			ctx.stroke(linePath);
 		  }
+		  
+		    
 	}
   </script>
 </head>
-<body onload="draw();">
+<body>
 
 <!--replace with clickable menus-->
 <div class="navBar">

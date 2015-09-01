@@ -2,7 +2,7 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8206;
+var portNum = 8335;
 var dat = Object;
 var done= false;
 var count=0;
@@ -24,6 +24,8 @@ var ngDist = 3;
 //for a hack
 var mz = "";
 
+var initialized = false;
+var idNumber=-1;
 var processed = 0;
 var A = "";
 var d = 3;
@@ -32,7 +34,30 @@ var donePulling = false;
 var urlCount=5;
 var enough = false;
 
+var initializeDataOnServer = function(){
+	
+	$.ajax({
+				type: 'GET',
+				url: 'http://localhost:'+portNum+'/initialize/',
+				//data : {dataInitialized: initialized, idNum: idNumber},
+				success: function(data){
+					idNumber=data['idNum'];
+					console.log("IDNUM: " + idNumber);
+					initialized=data['initialized'];
+					console.log(initialized);
+					
+					continueRunning();
+
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) { 
+						alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+					}       
+			});
+};
+
+
 var runExperiment= function(){
+	
 	
 	donePulling = false;
 	
@@ -75,7 +100,14 @@ var runExperiment= function(){
 	var hitsM2 = getSiteList(m2,myCallback); */
 	
 	//replace with callback
+	initializeDataOnServer();
 	
+	
+	
+	
+};
+
+var continueRunning = function(){
 	setTimeout(function(){
 		console.log("LISTCHECK2");
 		console.log(hitsP1);
@@ -86,9 +118,7 @@ var runExperiment= function(){
 
 	}, 5000);
 	
-	
-};
-
+}
 /* function grabTexts(){
 	setTimeout(function(){
 		console.log("LISTCHECK2");
@@ -213,9 +243,9 @@ function setDataPoint(dataPoint, whichList, urlX){
 function getFrequencies(){
 		
 	$.ajax({
-            type: 'GET',
+            type: 'POST',
             url: 'http://localhost:'+portNum+'/freqFinder/',
-            //data : {site : urlX, which: whichList, AmbiguousWord: A}
+            data : {'idNum':idNumber},
             success: function(data){
 				displayCounts(data);
 				displayCorrelationAndVisualize(data);
@@ -231,14 +261,16 @@ function getFrequencies(){
 
 function displayCorrelationAndVisualize(data){
 	
-	c1x = data['C1X']['score'];
+	c1x = data['C1X']['score'][0];
 	$('#c1x').text(c1x.toString());
-	c1y = data['C1Y']['score'];
+	c1y = data['C1Y']['score'][0];
 	$('#c1y').text(c1y.toString());
-	c2x = data['C2X']['score'];
+	c2x = data['C2X']['score'][0];
 	$('#c2x').text(c2x.toString());
-	c2y = data['C2Y']['score'];
+	c2y = data['C2Y']['score'][0];
 	$('#c2y').text(c2y.toString());
+	
+	draw(c1x,c1y,c2x,c2y);
 	//c1x = data['c1x']['score'];
 }
 function displayCounts(data){
@@ -315,7 +347,8 @@ function getSiteList(string, hits){
 
             }
         });
-		
+	
+	
 };
 
 
@@ -372,12 +405,19 @@ function getSiteData(urlX, whichList){
 		}
 	}
 	
+	
 	if(enough == false){
 		$.ajax({
 				type: 'POST',
 				url: 'http://localhost:'+portNum+'/urlGrab/',
-				data : {texts : urlX, which: whichList, AmbiguousWord: A},
+				data : {texts : urlX, which: whichList, AmbiguousWord: A, dataInitialized: initialized, idNum: idNumber},
 				success: function(data){
+					idNumber=data['idNum'];
+					console.log("IDNUM: " + idNumber);
+					
+					initialized=data['initialized'];
+					console.log(initialized);
+					
 					setDataPoint(""+data['texts'], ""+data['which'], urlX);
 
 				},
@@ -386,8 +426,45 @@ function getSiteData(urlX, whichList){
 					}       
 			});
 	}
+	
 };
 
+
+var draw = function(c1x,c1y,c2x,c2y){
+		var canvas = document.getElementById("canvas1");
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			
+			//draw axis
+			var linePath = new Path2D();
+			linePath.moveTo(0,canvas.height-1);
+			linePath.lineTo(0,0);
+			linePath.moveTo(0,canvas.height-1);
+			linePath.lineTo(canvas.width-1,canvas.height-1);
+			ctx.stroke(linePath);
+			
+			var linePath2 = new Path2D();
+			linePath.moveTo(c1x*canvas.width,canvas.height-1-c1y*canvas.height);
+			linePath.lineTo(c2x*canvas.width,canvas.height-1-c2y*canvas.height);
+			ctx.stroke(linePath2);
+			
+			canvas_arrow(ctx,c1x,c1y,c2x,c2y)
+		  }
+		  
+		    
+	}
+
+//method obtained from stackoverflow.com
+function canvas_arrow(context, fromx, fromy, tox, toy){
+    var headlen = 10;   // length of head in pixels
+    var angle = Math.atan2(toy-fromy,tox-fromx);
+    context.moveTo(fromx, fromy);
+    context.lineTo(tox, toy);
+    context.lineTo(tox-headlen*Math.cos(angle-Math.PI/6),toy-headlen*Math.sin(angle-Math.PI/6));
+    context.moveTo(tox, toy);
+    context.lineTo(tox-headlen*Math.cos(angle+Math.PI/6),toy-headlen*Math.sin(angle+Math.PI/6));
+}
 
 var base64_encode = function(data) {
   // http://kevin.vanzonneveld.net
