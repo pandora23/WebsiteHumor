@@ -2,10 +2,11 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8335;
+var portNum = 8416;
 var dat = Object;
 var done= false;
 var count=0;
+
 //var whichQuery = 0;
 var p1UrlList = [];
 
@@ -19,7 +20,7 @@ var dataP2 = [];
 var dataM1 = [];
 var dataM2 = [];
 
-var ngDist = 3;
+var ngWidth = -1;
 
 //for a hack
 var mz = "";
@@ -31,8 +32,12 @@ var A = "";
 var d = 3;
 var m2="";
 var donePulling = false;
-var urlCount=5;
+
 var enough = false;
+
+//things that don't get reset
+var urlCount=-1;
+
 
 var initializeDataOnServer = function(){
 	
@@ -55,7 +60,50 @@ var initializeDataOnServer = function(){
 			});
 };
 
+var clearData = function(){
+	//$('#runButton').attr('disabled','enabled');
+	//$('#runButton').disabled(false);
+	
+	dat = Object;
+	done= false;
+	count=0;
+	//var whichQuery = 0;
+	p1UrlList = [];
 
+	hitsP1 = [];
+	hitsP2 = [];
+	hitsM1 = [];
+	hitsM2 = [];
+
+	dataP1 = [];
+	dataP2 = [];
+	dataM1 = [];
+	dataM2 = [];
+
+	//ngDist = 3;
+
+	//for a hack
+	mz = "";
+
+	initialized = false;
+	idNumber=-1;
+	processed = 0;
+	A = "";
+	d = 3;
+	m2="";
+	donePulling = false;
+	//urlCount=10;
+	enough = false;
+	$('.form5').val('');
+	
+	/* $('.form1').val()='est';
+	$('.form2').val();
+	$('.form3').val();
+	$('.form4').val();
+	$('.formE').val();
+	$('.formD').val(); */
+	
+};
 var runExperiment= function(){
 	
 	
@@ -66,40 +114,25 @@ var runExperiment= function(){
 	var p2 = $('.form2').val();
 	var m1 = $('.form3').val();
 	m2 = $('.form4').val();
-	ngDist = $('.formE').val();
 	d = $('.formD').val();
+	ngWidth = $('.formE').val();
+	urlCount = $('.formF').val();
+	
+	//greyout button
+	//$('#runButton').disabled(true);
 	
 	
 	
-	
-	$(".Freq1").text("Most frequent words that co-occur with "+ A +" given " + p1 + ":");
-	$(".Freq2").text("Most frequent words that co-occur with "+ A +" given " + p2 + ":");
-	$(".Freq3").text("Most frequent words that co-occur with "+ A +" given " + m1 + ":");
-	$(".Freq4").text("Most frequent words that co-occur with "+ A +" given " + m2 + ":");
-	
-	
-	
-	
-	
-	
-	
-	//timeout if this does not work, have to do some work with try/catch (ONLY PULLING 50 SITES, REFACTOR TO PULL N SITES)
-	
-	
+	$(".Freq1").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + p1 + "\':");
+	$(".Freq2").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + p2 + "\':");
+	$(".Freq3").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + m1 + "\':");
+	$(".Freq4").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + m2 + "\':");
 	
 	getSiteList(p1,hitsP1);
 	getSiteList(p2,hitsP2);
 	getSiteList(m1,hitsM1);
 	getSiteList(m2,hitsM2);
 	
-	
-	
-	
-	/* var hitsP2 = getSiteList(p2,myCallback);
-	var hitsM1 = getSiteList(m1,myCallback);
-	var hitsM2 = getSiteList(m2,myCallback); */
-	
-	//replace with callback
 	initializeDataOnServer();
 	
 	
@@ -119,38 +152,7 @@ var continueRunning = function(){
 	}, 5000);
 	
 }
-/* function grabTexts(){
-	setTimeout(function(){
-		console.log("LISTCHECK2");
-		console.log(hitsP1);
-		
-		
-		pullAllDataUsingSiteList(hitsP1, "P1");
-		pullAllDataUsingSiteList(hitsP2, "P2");
-		pullAllDataUsingSiteList(hitsM1, "M1");
-		pullAllDataUsingSiteList(hitsM2, "M2");
 
-	}, 1000);
-}; */
-/* function waitForFinish(){
-	length = dataP1.length;
-	done = false;
-	
-	while(done==false){
-		setTimeout(function(){
-			prevLength = length;
-			length = dataP1.length;
-			if(length==prevLength){
-				done==true;
-			}
-		}, 2000);
-	}
-
-	for(dat in dataP1){
-		$('.allTextP1').append($('<li>').text(dat));
-	}
-};
- */
 
 function pullAllDataUsingSiteList(urlList, whichQuery){
 	
@@ -163,7 +165,7 @@ function pullAllDataUsingSiteList(urlList, whichQuery){
 	//var dataFromSites = []
 	
 	//CHANGE BACKn ONCE DONE DEVELOPING
-	for(var i = 0; i < urlCount*3; i++){
+	for(var i = 0; i < urlCount*2.5; i++){
 		console.log("hit");
 		console.log(urlList[i]);
 		var dataPoint = ""
@@ -180,49 +182,7 @@ function pullAllDataUsingSiteList(urlList, whichQuery){
 function setDataPoint(dataPoint, whichList, urlX){
 	
 	
-	console.log("setting " + whichList);
 	
-	if(whichList != 'fail'){
-		
-		console.log("NextPoint "+dataPoint)
-		if(dataPoint != []){
-			$('.currentPart').text(whichList);
-			$('.allTextP1').append($('<li>').text(dataPoint));
-			
-			if(whichList==="P1"){
-				$('.resultsListP1').append($('<li class=\"greyText\">').text(urlX));
-				if(dataP1.length <= urlCount){
-				dataP1.push(dataPoint);
-				}
-			}
-			if(whichList==="P2"){
-				$('.resultsListP1').append($('<li>').text(urlX));
-				if(dataP2.length <= urlCount){
-				dataP2.push(dataPoint);
-				}	
-			}
-			if(whichList==="M1"){
-				$('.resultsListP1').append($('<li>').text(urlX));
-				if(dataM1.length <= urlCount){
-				dataM1.push(dataPoint);
-				}
-			}
-			if(whichList==="M2"){
-				$('.resultsListP1').append($('<li>').text(urlX));
-				if(dataM2.length <= urlCount){
-				dataM2.push(dataPoint);
-				}
-			
-			}
-		}
-		
-		/* last = whichList;
-		if(last != whichList){
-			$('.resultsListP1').append($('<li>').text(whichList))
-		} */
-		$('.allTextP1').scrollTop($('.allTextP1').scrollHeight);
-		$('.resultsListP1').scrollTop = $('.resultsListP1').scrollHeight;
-		
 		//console.log(urlCount);
 		if( dataP1.length >= urlCount &&
 			dataP2.length >= urlCount &&
@@ -232,6 +192,54 @@ function setDataPoint(dataPoint, whichList, urlX){
 					donePulling = true;
 					console.log("LASTTEXTGRABBED");
 					getFrequencies();
+				}
+		else{
+			console.log("setting " + whichList);
+	
+			if(whichList != 'fail'){
+				
+				console.log("NextPoint "+dataPoint)
+				if(dataPoint != []){
+					$('.currentPart').text(whichList);
+					$('.allTextP1').append($('<li>').text(dataPoint));
+					
+					if(whichList==="P1"){
+						$('.resultsListP1').append($('<li class=\"greyText\">').text(urlX));
+						if(dataP1.length <= urlCount){
+						dataP1.push(dataPoint);
+						}
+					}
+					if(whichList==="P2"){
+						$('.resultsListP1').append($('<li>').text(urlX));
+						if(dataP2.length <= urlCount){
+						dataP2.push(dataPoint);
+						}	
+					}
+					if(whichList==="M1"){
+						$('.resultsListP1').append($('<li>').text(urlX));
+						if(dataM1.length <= urlCount){
+						dataM1.push(dataPoint);
+						}
+					}
+					if(whichList==="M2"){
+						$('.resultsListP1').append($('<li>').text(urlX));
+						if(dataM2.length <= urlCount){
+						dataM2.push(dataPoint);
+						}
+					
+					}
+				}
+				
+				/* last = whichList;
+				if(last != whichList){
+					$('.resultsListP1').append($('<li>').text(whichList))
+				} */
+				$('.allTextP1').scrollTop($('.allTextP1').scrollHeight-1);
+				$('.resultsListP1').scrollTop($('.resultsListP1').scrollHeight);
+				
+				//$('.resultsListP1').animate({ scrollTo: $('.resultsListP1').scrollHeight});
+				//$('.allTextP1').animate({ scrollTo: $('.allTextP1').scrollHeight});
+					
 				}
 	}
 	
@@ -245,7 +253,7 @@ function getFrequencies(){
 	$.ajax({
             type: 'POST',
             url: 'http://localhost:'+portNum+'/freqFinder/',
-            data : {'idNum':idNumber},
+            data : {'idNum':idNumber, 'ambiguous':A, 'distance':d, 'ngWidth':ngWidth},
             success: function(data){
 				displayCounts(data);
 				displayCorrelationAndVisualize(data);
@@ -261,13 +269,13 @@ function getFrequencies(){
 
 function displayCorrelationAndVisualize(data){
 	
-	c1x = data['C1X']['score'][0];
+	c1x = data['C1X']['score'][0].toFixed(3);
 	$('#c1x').text(c1x.toString());
-	c1y = data['C1Y']['score'][0];
+	c1y = data['C1Y']['score'][0].toFixed(3);
 	$('#c1y').text(c1y.toString());
-	c2x = data['C2X']['score'][0];
+	c2x = data['C2X']['score'][0].toFixed(3);
 	$('#c2x').text(c2x.toString());
-	c2y = data['C2Y']['score'][0];
+	c2y = data['C2Y']['score'][0].toFixed(3);
 	$('#c2y').text(c2y.toString());
 	
 	draw(c1x,c1y,c2x,c2y);
@@ -279,31 +287,17 @@ function displayCounts(data){
 	//grab the top frequencies
 	var countData = [data['P1Freq'],data['P2Freq'],data['M1Freq'],data['M2Freq']];
 	
-	var numToDisplay = 50
+	var numToDisplay = 20
 	//display the top frequencies
 	for(var i = 0; i <= 3; i++){
 		var mostFrequentString = "";
 		for(var j = 0; j < numToDisplay; j++){
-			mostFrequentString = mostFrequentString + ", " + countData[i][j][0];
+			mostFrequentString = mostFrequentString + "("+countData[i][j][0]+","+countData[i][j][1].toFixed(3)+"), ";
 		}
 		$('.Freq'+(i+1)+'List').text(mostFrequentString);
 	}
 	
 }
-
-/* var myCallback = function(data, hits){
-	
-		
-		for(var i = 0; i < data.d.results.length; i++){
-			hits.push("" + data.d.results[i].Url);
-			console.log(data.d.results[i].Url);
-		};
-		console.log('List');
-		console.log(urlList);
-		
-		//return urlList;
-            
-}; */
 
 
 
@@ -317,13 +311,13 @@ function getSiteList(string, hits){
 	var urlList = [];
 	
 	//REPLACE BY USER INPUT
-	var numHits = urlCount*2;
+	var numHits = urlCount*3;
 	var numRequests = Math.floor(numHits/50) + 1;
 	console.log("NumAPIRequestsBING: " + numRequests);
 	
 	
 	<!--query-->
-	var url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/'+search_type+'?Query=%27'+query+'%27&$top=40&$format=json&$skip='+skipN;
+	var url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/'+search_type+'?Query=%27'+query+'%27&$top=50&$format=json&$skip='+skipN;
 
 	
 	$.ajax({
@@ -361,17 +355,6 @@ function getSiteData(urlX, whichList){
 	console.log("Which " + whichList);
 	//append to website 
 	
-		
-	
-	/* else if(whichQuery===1){
-		$('.resultsListP2').append($('<li>').text(urlX));
-	}
-	else if(whichQuery===2){
-		$('.resultsListMX').append($('<li>').text(urlX));
-	}
-	else{
-		$('.resultsListMY').append($('<li>').text(urlX));
-	} */
 	var dist = 3;
 	var enough = false;
 	
@@ -410,7 +393,7 @@ function getSiteData(urlX, whichList){
 		$.ajax({
 				type: 'POST',
 				url: 'http://localhost:'+portNum+'/urlGrab/',
-				data : {texts : urlX, which: whichList, AmbiguousWord: A, dataInitialized: initialized, idNum: idNumber},
+				data : {texts : urlX, which: whichList, AmbiguousWord: A, dataInitialized: initialized, idNum: idNumber, dist: d},
 				success: function(data){
 					idNumber=data['idNum'];
 					console.log("IDNUM: " + idNumber);
@@ -431,40 +414,92 @@ function getSiteData(urlX, whichList){
 
 
 var draw = function(c1x,c1y,c2x,c2y){
+	
 		var canvas = document.getElementById("canvas1");
 		if (canvas.getContext) {
 			var ctx = canvas.getContext("2d");
-
+			
+			var offSetX = 50;
+			var offSetY = 100
+			
+			//
+			var width = canvas.width - offSetX;
+			var height = canvas.height - offSetY;
+			
+			//set so it starts at origin
+			var offSetY = 0;
+			
 			
 			//draw axis
-			var linePath = new Path2D();
-			linePath.moveTo(0,canvas.height-1);
-			linePath.lineTo(0,0);
-			linePath.moveTo(0,canvas.height-1);
-			linePath.lineTo(canvas.width-1,canvas.height-1);
-			ctx.stroke(linePath);
+			ctx.beginPath();
+			ctx.strokeStyle = '#0000ff'
+			//(0,0)
+			ctx.moveTo(offSetX+1,height+offSetY);
+			//line to (0,1)
+			ctx.lineTo(offSetX+1,offSetY);
 			
-			var linePath2 = new Path2D();
-			linePath.moveTo(c1x*canvas.width,canvas.height-1-c1y*canvas.height);
-			linePath.lineTo(c2x*canvas.width,canvas.height-1-c2y*canvas.height);
-			ctx.stroke(linePath2);
+			//(0,0)
+			ctx.moveTo(offSetX,height+offSetY);
+			//line to (1,0)
+			ctx.lineTo(width+offSetX,height+offSetY);
 			
-			canvas_arrow(ctx,c1x,c1y,c2x,c2y)
+			ctx.closePath();
+			ctx.stroke();
+			
+			
+			//label axis
+			ctx.font = "12px Arial";
+			ctx.fillText("Correlation with",0,10);
+			ctx.fillText("Meaning Y",0,35);
+			ctx.fillText("Correlation with Meaning X",width-150,height+10);
+			
+			
+			
+			//color 
+			var classVal = $("input[name=class]:checked").val();
+			console.log(classVal);
+			ctx.beginPath();
+			if(classVal === 'NonJoke'){
+				ctx.strokeStyle = '#ff0000';
+			}
+			else if(classVal === 'Joke'){
+				ctx.strokeStyle = '#00ff00';
+			}
+			else{
+				ctx.strokeStyle = '#0000ff';
+			}
+			
+			//draw vector
+			//var linePath2 = new Path2D();
+			//ctx.beginPath();
+			ctx.moveTo(c1x*width+offSetX,height-c1y*height+offSetY);
+			ctx.lineTo(c2x*width+offSetX,height-c2y*height+offSetY);
+			ctx.closePath();
+			ctx.stroke();
+			
+			//draw arrowhead
+			canvas_arrow(ctx,c1x*width,c1y*height,c2x*width,c2y*height, height, offSetX, offSetY);
+			
 		  }
 		  
 		    
 	}
 
 //method obtained from stackoverflow.com
-function canvas_arrow(context, fromx, fromy, tox, toy){
+//method obtained from stackoverflow.com
+function canvas_arrow(context, fromx, fromy, tox, toy, height, offSetX, offSetY){
     var headlen = 10;   // length of head in pixels
-    var angle = Math.atan2(toy-fromy,tox-fromx);
-    context.moveTo(fromx, fromy);
-    context.lineTo(tox, toy);
-    context.lineTo(tox-headlen*Math.cos(angle-Math.PI/6),toy-headlen*Math.sin(angle-Math.PI/6));
-    context.moveTo(tox, toy);
-    context.lineTo(tox-headlen*Math.cos(angle+Math.PI/6),toy-headlen*Math.sin(angle+Math.PI/6));
-}
+    var angle = Math.atan2(toy-fromy,(tox-fromx));
+	//var linePath3=new Path2D();
+	context.beginPath();
+    context.moveTo(fromx+offSetX, height-1-fromy+offSetY);
+    context.lineTo(tox+offSetX, height-1-toy+offSetY);
+    context.lineTo(tox-headlen*Math.cos(angle-Math.PI/6)+offSetX,height-1-(toy-headlen*Math.sin(angle-Math.PI/6))+offSetY);
+    context.lineTo(tox-headlen*Math.cos(angle+Math.PI/6)+offSetX,height-1-(toy-headlen*Math.sin(angle+Math.PI/6))+offSetY);
+	context.lineTo(tox+offSetX, height-1-toy+offSetY);
+	contex.closePath();
+	context.stroke();
+	}
 
 var base64_encode = function(data) {
   // http://kevin.vanzonneveld.net

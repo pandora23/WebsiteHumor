@@ -5,13 +5,10 @@ import tornado.httpserver
 import tornado.options
 import tornado.web
 
-import multiprocessing
-import time
-
+import nltk
 from nltk.corpus import wordnet as wn
-#from nltk.corpus import wordnet_ic
 from nltk.corpus import stopwords, words
-from itertools import product
+
 from nltk import FreqDist
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -20,8 +17,11 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.preprocessing import Normalizer
 from sklearn import metrics
 from sklearn.cluster import KMeans, MiniBatchKMeans
-#import pickle
-import nltk
+from scipy.stats.stats import pearsonr
+
+import multiprocessing
+import time
+from itertools import product
 import json
 import urllib2
 import urllib
@@ -30,16 +30,19 @@ import csv
 import sklearn
 import numpy
 import signal
-from scipy.stats.stats import pearsonr
+import re
+
 
 from tornado.options import define, options
-define("port", default=8335, type=int)
+define("port", default=8416, type=int)
 
 def css_files(self):
     return "style.css"
 
 stopwords = nltk.corpus.stopwords.words('english')
 words = nltk.corpus.words.words()
+regExp = re.compile('[a-z]*')
+
 allData=object;
 
 class DataPoint:
@@ -68,14 +71,6 @@ class Data:
         self.instances.append(dp)
         
         
-
-
-    
-ngDist = 0
-FreqA = []
-d=3
-
-
 def signal_handler(signum, frame):
     print(signum)
     tornado.ioloop.IOLoop.instance().stop()
@@ -88,7 +83,7 @@ class IndexHandler(tornado.web.RequestHandler):
         self.render('page.html')
 
 
-def pageGrab(url, whichList, A, idN, initialized, self):
+def pageGrab(url, whichList, A, idN, initialized, self, distance):
     accepted = False
     try:
         if 'http://www.youtube.com' not in url:
@@ -103,7 +98,8 @@ def pageGrab(url, whichList, A, idN, initialized, self):
             
         print('accepted')
         accepted = True
-        
+
+        #print(page)
         #cleanup
         page = nltk.clean_html(page)
         page = re.sub('[;:.,`\"\'-]','',page)
@@ -128,7 +124,7 @@ def pageGrab(url, whichList, A, idN, initialized, self):
 
         
         #distance to target
-        distanceFromTarget = d
+        distanceFromTarget = distance
 
         #for co-occuring tokens
         pageTokens=[]
@@ -139,7 +135,7 @@ def pageGrab(url, whichList, A, idN, initialized, self):
                 if index < distanceFromTarget:
                     #beginning of text
                     pageTokens.append(page[:(index+distanceFromTarget)])
-                if (index + distanceFromTarget) >= len(page):
+                elif (index + distanceFromTarget) >= len(page):
                     #end of text
                     pageTokens.append(page[(index-distanceFromTarget):index])
                 else:
@@ -151,24 +147,27 @@ def pageGrab(url, whichList, A, idN, initialized, self):
         #combine back into string
         returnString = ""
         if pageTokens != []:
-            print(pageTokens)
             for tokens in pageTokens:
+                #returnString = returnString + ' . '
                 for token in tokens:
                     if isinstance(token, str):
                         token = token.lower()
-                        if token in words:
-                            if token not in stopwords:
-                                returnString = returnString + " " + token;
+                        if(token.isalpha()):
+                            returnString = returnString + " " + token;
+##                        if token in words:
+##                            returnString = returnString + " " + token;
+##                            if token not in stopwords:
+##                                returnString = returnString + " " + token;
 
         
         print("id: "+str(idN))
         if(whichList == "P1"):
             allData.instances[idN].P1Dat = allData.instances[idN].P1Dat + " " + returnString;
-        if(whichList == "P2"):
+        elif(whichList == "P2"):
             allData.instances[idN].P2Dat = allData.instances[idN].P2Dat + " " + returnString;
-        if(whichList == "M1"):
+        elif(whichList == "M1"):
             allData.instances[idN].M1Dat = allData.instances[idN].M1Dat + " " + returnString;
-        if(whichList == "M2"):
+        elif(whichList == "M2"):
             allData.instances[idN].M2Dat = allData.instances[idN].M2Dat + " " + returnString;
             
         
@@ -188,7 +187,7 @@ class WebSiteGrabberHandler(tornado.web.RequestHandler):
         #on first grab establishes a new Dataset for the user, and the id to return
 
         dataInitialized = self.get_argument('dataInitialized')
-        print("initialized: "+ str(dataInitialized))
+        
         print(type(dataInitialized))
 
         if dataInitialized == "false":
@@ -202,34 +201,14 @@ class WebSiteGrabberHandler(tornado.web.RequestHandler):
             idN= int(idN)
             
         #grab url, convert from unicode to string
-        url = self.get_argument('texts')
+        url = str(self.get_argument('texts'))
         
-        url=str(url)
-        print("URL = "+url);
-
-        #which list (P1,P2,M1,M2?)
+        
         whichList = self.get_argument('which')
-
-        #d= self.get_argument('dist1')
-
         A = self.get_argument('AmbiguousWord')
-
-        #ngramDist = self.get_argument('ngram')
-        #try to grab website
-
+        distance = self.get_argument('dist')
         
-        
-##        try:
-##            page = urllib2.urlopen(url).read()
-##            accepted = True
-##        except:
-##            print('not accepted')
-
-        p = multiprocessing.Process(target=pageGrab(url, whichList, A, idN, dataInitialized, self))
-        #time.sleep(5)
-        #print(A)
-        #p.join()
-        #page, accepted = pageGrab(url)
+        p = multiprocessing.Process(target=pageGrab(url, whichList, A, idN, dataInitialized, self, int(distance)))
 
         
         
@@ -248,38 +227,32 @@ class Initializer(tornado.web.RequestHandler):
         
 class FrequencyFinder(tornado.web.RequestHandler):
     def post(self):
-        #ngramRange = (1, ngDist)
-
-        idNumber = self.get_argument('idNum')
-        idNumber = int(idNumber)
-        print("trying something");
         
-        bigramVectorizer = CountVectorizer(ngram_range=(1,2), token_pattern=r'\b\w+\b',min_df=1, max_features = 500);
+        idNumber = self.get_argument('idNum')
+        ambWord = self.get_argument('ambiguous')
+        ngWidth = self.get_argument('ngWidth')
+        
+        idNumber = int(idNumber)
+        ngWidth = int(ngWidth)
+        
+        
+        bigramVectorizer = CountVectorizer(stop_words = 'english', ngram_range=(1,ngWidth), token_pattern=r'\b\w+\b',min_df=1, max_features = 500);
         
         transformed = bigramVectorizer.fit_transform([allData.instances[idNumber].P1Dat,allData.instances[idNumber].P2Dat,
                                                       allData.instances[idNumber].M1Dat,allData.instances[idNumber].M2Dat])
         
         tags = bigramVectorizer.get_feature_names()
-        print(tags)
     
-        
-        #insert 0s if needed
-
         countsToReturn = []
         freqsToReturn = []
 
         #just the frequency scores sorted
         f=[]
 
-        
-        #minCount = 5
-
+        #tf-idf
         tf_transformer = TfidfTransformer(use_idf=True).fit(transformed)
-        
         tf = tf_transformer.transform(transformed)
         
-        #print(X_train_tf.shape)
-
 
         #establish counts
         for doc in transformed:
@@ -287,6 +260,7 @@ class FrequencyFinder(tornado.web.RequestHandler):
             counts = {}
             
             for word, count in zip(tags,doc[0]):
+                
                 counts.update({word:int(count)})
             counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
             countsToReturn.append(counts)
@@ -297,7 +271,8 @@ class FrequencyFinder(tornado.web.RequestHandler):
             freqs = {}
             
             for word, freq in zip(tags,doc[0]):
-                freqs.update({word:float(freq)})
+                if(word != ambWord):
+                    freqs.update({word:float(freq)})
 
             #sort by word and just grab fscore
             f.append([x[1] for x in sorted(freqs.items(), key=lambda x: x[0], reverse=True)])
@@ -327,8 +302,8 @@ class FrequencyFinder(tornado.web.RequestHandler):
         
         
         #return sorted top frequency words   
-        returnPacket = {'P1Freq':countsToReturn[0],'P2Freq':countsToReturn[1],
-                        'M1Freq':countsToReturn[2],'M2Freq':countsToReturn[3], 'C1X':{'score':c1x},
+        returnPacket = {'P1Freq':freqsToReturn[0],'P2Freq':freqsToReturn[1],
+                        'M1Freq':freqsToReturn[2],'M2Freq':freqsToReturn[3], 'C1X':{'score':c1x},
                         'C1Y':{'score':c1y},'C2X':{'score':c2x},'C2Y':{'score':c2y}}
         self.write(returnPacket)
         self.finish()
