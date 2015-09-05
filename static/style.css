@@ -27,21 +27,15 @@ body {
 	overflow: scroll;
 }
 
-
-.containerTexts{
-	background-color:#008808;
-	//display: inline;
-	width:500px;
-	height: 500px;
-	position: fixed;
-	top: 80px;
-	left: 1000px;
-	//margin-left:555px;
-	//margin-top: 10px;
-	
-
+#JClass{
+	background-color:#00ff00;
 }
-
+#NJClass{
+	background-color:#ff0000;
+}
+#UKClass{
+	background-color:#0000ff;
+}
 .resultsListP1{
 	overflow: scroll;
 	width:270px;
@@ -66,21 +60,7 @@ body {
 	background-color:#0FF00F;
 }
 
-.container3{
-	background-color:#0F00FF;
-	width: 1050px;
-	position: fixed;
-	top: 515px;
-	left: 05px;
-}
 
-
-.subpanel {
-	display:inline-block;
-	top:500px;
-	position:relative;
-	background-color:#FF00F0;
-}
 
 .frame1{
 	display:inline;

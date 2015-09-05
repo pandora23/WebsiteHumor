@@ -2,7 +2,7 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8416;
+var portNum = 8425;
 var dat = Object;
 var done= false;
 var count=0;
@@ -123,10 +123,10 @@ var runExperiment= function(){
 	
 	
 	
-	$(".Freq1").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + p1 + "\':");
-	$(".Freq2").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + p2 + "\':");
-	$(".Freq3").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + m1 + "\':");
-	$(".Freq4").text("Most frequent words and bigrams that co-occur with \'"+ A +"\' given \'" + m2 + "\':");
+	$(".Freq1").text("Most frequent n-grams that co-occur with \'"+ A +"\' given \'" + p1 + "\':");
+	$(".Freq2").text("Most frequent n-grams that co-occur with \'"+ A +"\' given \'" + p2 + "\':");
+	$(".Freq3").text("Most frequent n-grams that co-occur with \'"+ A +"\' given \'" + m1 + "\':");
+	$(".Freq4").text("Most frequent n-grams that co-occur with \'"+ A +"\' given \'" + m2 + "\':");
 	
 	getSiteList(p1,hitsP1);
 	getSiteList(p2,hitsP2);
@@ -415,73 +415,74 @@ function getSiteData(urlX, whichList){
 
 var draw = function(c1x,c1y,c2x,c2y){
 	
-		var canvas = document.getElementById("canvas1");
-		if (canvas.getContext) {
-			var ctx = canvas.getContext("2d");
-			
-			var offSetX = 50;
-			var offSetY = 100
-			
-			//
-			var width = canvas.width - offSetX;
-			var height = canvas.height - offSetY;
-			
-			//set so it starts at origin
-			var offSetY = 0;
-			
-			
-			//draw axis
-			ctx.beginPath();
-			ctx.strokeStyle = '#0000ff'
-			//(0,0)
-			ctx.moveTo(offSetX+1,height+offSetY);
-			//line to (0,1)
-			ctx.lineTo(offSetX+1,offSetY);
-			
-			//(0,0)
-			ctx.moveTo(offSetX,height+offSetY);
-			//line to (1,0)
-			ctx.lineTo(width+offSetX,height+offSetY);
-			
-			ctx.closePath();
-			ctx.stroke();
-			
-			
-			//label axis
-			ctx.font = "12px Arial";
-			ctx.fillText("Correlation with",0,10);
-			ctx.fillText("Meaning Y",0,35);
-			ctx.fillText("Correlation with Meaning X",width-150,height+10);
-			
-			
-			
-			//color 
-			var classVal = $("input[name=class]:checked").val();
-			console.log(classVal);
-			ctx.beginPath();
-			if(classVal === 'NonJoke'){
-				ctx.strokeStyle = '#ff0000';
-			}
-			else if(classVal === 'Joke'){
-				ctx.strokeStyle = '#00ff00';
-			}
-			else{
-				ctx.strokeStyle = '#0000ff';
-			}
-			
-			//draw vector
-			//var linePath2 = new Path2D();
-			//ctx.beginPath();
-			ctx.moveTo(c1x*width+offSetX,height-c1y*height+offSetY);
-			ctx.lineTo(c2x*width+offSetX,height-c2y*height+offSetY);
-			ctx.closePath();
-			ctx.stroke();
-			
-			//draw arrowhead
-			canvas_arrow(ctx,c1x*width,c1y*height,c2x*width,c2y*height, height, offSetX, offSetY);
-			
-		  }
-		  
+	var canvas = document.getElementById("canvas1");
+	if (canvas.getContext) {
+		var ctx = canvas.getContext("2d");
+		
+		var offSetX = 50;
+		var offSetY = 100
+		
+		//
+		var width = canvas.width - offSetX;
+		var height = canvas.height - offSetY;
+		
+		//set so it starts at origin
+		var offSetY = 0;
+		
+		
+		//draw axis
+		ctx.beginPath();
+		ctx.strokeStyle = '#0000ff'
+		//(0,0)
+		ctx.moveTo(offSetX+1,height+offSetY);
+		//line to (0,1)
+		ctx.lineTo(offSetX+1,offSetY);
+		
+		//(0,0)
+		ctx.moveTo(offSetX,height+offSetY);
+		//line to (1,0)
+		ctx.lineTo(width+offSetX,height+offSetY);
+		
+		ctx.closePath();
+		ctx.stroke();
+		
+		
+		//label axis
+		ctx.font = "12px Arial";
+		ctx.fillText("Correlation with",0,10);
+		ctx.fillText("Meaning Y",0,35);
+		ctx.fillText("Correlation with Meaning X",width-150,height+10);
+		
+		
+		
+		//color 
+		var classVal = $("input[name=class]:checked").val();
+		console.log(classVal);
+		
+		ctx.beginPath();
+		if(classVal === 'NonJoke'){
+			ctx.strokeStyle = '#ff0000';
+		}
+		else if(classVal === 'Joke'){
+			ctx.strokeStyle = '#00ff00';
+		}
+		else{
+			ctx.strokeStyle = '#0000ff';
+		}
+		
+		//draw vector
+		//var linePath2 = new Path2D();
+		//ctx.beginPath();
+		ctx.moveTo(c1x*width+offSetX,height-c1y*height+offSetY);
+		ctx.lineTo(c2x*width+offSetX,height-c2y*height+offSetY);
+		ctx.closePath();
+		ctx.stroke();
+		
+		//draw arrowhead
+		canvas_arrow(ctx,c1x*width,c1y*height,c2x*width,c2y*height, height, offSetX, offSetY);
+		
+	  }
+	  
 		    
 	}
 
@@ -497,7 +498,7 @@ function canvas_arrow(context, fromx, fromy, tox, toy, height, offSetX, offSetY)
     context.lineTo(tox-headlen*Math.cos(angle-Math.PI/6)+offSetX,height-1-(toy-headlen*Math.sin(angle-Math.PI/6))+offSetY);
     context.lineTo(tox-headlen*Math.cos(angle+Math.PI/6)+offSetX,height-1-(toy-headlen*Math.sin(angle+Math.PI/6))+offSetY);
 	context.lineTo(tox+offSetX, height-1-toy+offSetY);
-	contex.closePath();
+	context.closePath();
 	context.stroke();
 	}
 

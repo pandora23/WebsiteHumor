@@ -34,7 +34,7 @@ import re
 
 
 from tornado.options import define, options
-define("port", default=8416, type=int)
+define("port", default=8425, type=int)
 
 def css_files(self):
     return "style.css"

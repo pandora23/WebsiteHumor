@@ -23,7 +23,6 @@
 <div class="jumbotron">
 	<div class="container">
         <h1>Experiment Online.</h1>
-        <p>Fill out this web form to run your own experiments.*change*</p>
      </div>
 </div>
 
@@ -66,7 +65,7 @@
 					<textarea class="formF" rows="1">5</textarea>
 				</div>
 				<script>
-				//$("#nglenform").attr("disabled", "disabled");
+				
 				</script>
 				
 				
@@ -76,19 +75,46 @@
 		</div>
 		<div class="inputForm">Set Color:
 			<form class="classform">
-			<input type="radio" name="class" value="Joke">Joke<br>
-			<input type="radio" name="class" value="Non Joke">NonJoke<br>
-			<input type="radio" name="class" value="Unknown">Unknown<br>
+			<input type="radio" name="class" id="JClass" value="Joke">Joke<br>
+			<input type="radio" name="class" id="NJClass" value="NonJoke">NonJoke<br>
+			<input type="radio" name="class" id="UKClass" value="Unknown">Unknown<br>
+			</form>
+		</div>
+		<div class="inputForm">Set Source of Data:
+			<form class="classform">
+			<input type="radio" name="class" id="JClass" value="Joke">Wikipedia Articles<br>
+			<input type="radio" name="class" id="NJClass" value="NonJoke">All of the Web<br>
 			</form>
 		</div>
 	</div>
-	<div class="col-md-3" id="box2">
-		<h4>Correlation scores and CPC visualization:</h4>
+	<div class="col-md-2" id="box2">
+		<h4>Correlation scores:</h4>
 		<h5>Correlation between A given P1 and M1:</h5><h5 id="c1x"></h5>
 		<h5>Correlation between A given P1 and M2:</h5><h5 id="c1y"></h5>
 		<h5>Correlation between A given P2 and M1:</h5><h5 id="c2x"></h5>
 		<h5>Correlation between A given P2 and M2:</h5><h5 id="c2y"></h5>
-		<canvas id="canvas1" width="300" height="300"></canvas>
+		<div  id="tabbedVisualizationContainer">
+			<div class="navBar">
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#vistab1">Visualization 1: CPC</a></li>
+					<li><a href="#vistab2">Visualization 2: Heat Maps</a></li>
+				</ul>
+			</div>
+			
+			<div class="tab-content">
+			
+			
+			<div id="vistab1" class="tab-pane fade">
+				<canvas id="canvas1" width="300" height="300"></canvas>
+			</div>
+			<div id="vistab2" class="tab-pane fade">
+				<canvas id="canvas2" width="300" height="300"></canvas>
+			</div>
+			
+			<!-- <canvas id="canvas1" width="300" height="300"></canvas> -->
+			
+			</div>
+		</div>
 	</div>
 	<div class="col-md-2">
 		<h3>Search Results: </h3><h3 class="currentPart"></h3>
@@ -104,40 +130,16 @@
 </div>
 
 
-<!--Semantics Established window-->
-
-
-
-<!-- <div class="container4" id ="box4">P2 sites.
-		<ul class="resultsListP2>
-			<li>zzz</li>
-		</ul>
-	</div>
-	<div class="container4" id ="box4">Mx sites.
-		<ul class="resultsListP3>
-			<li>zzz</li>
-		</ul>
-	</div>
-	<div class="container4" id ="box4">My sites.
-		<ul class="resultsListP4>
-			<li>zzz</li>
-		</ul>
-	</div>
-	 -->
-<!--window showing sites currently processing-->
-<!--div class="websitesPanel">Search hits:-->
-
-
 <div class="container" id="freqPane">
 	<div class="row">
 		<h2>Top Frequencies:</h2>
-	<div>
+	</div>
 	<div class="row">
 		<h3 class="Freq1">waiting for input</h3>
 		<div class="FrequencyList1">
 			<h3 class="Freq1List">not calculated</h3>
 		</div>
-	<div>
+	</div>
 	<div class="row">
 		<h3 class="Freq2">waiting for input</h3>
 	<h3 class="Freq2List"></h3>
