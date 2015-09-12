@@ -2,7 +2,10 @@ var main = function(){
 	//add listeners here
 };
 
-var portNum = 8425;
+var portNum = 8085;
+
+var ip = '68.186.90.72'
+//var ip = 'localhost'
 var dat = Object;
 var done= false;
 var count=0;
@@ -43,7 +46,7 @@ var initializeDataOnServer = function(){
 	
 	$.ajax({
 				type: 'GET',
-				url: 'http://localhost:'+portNum+'/initialize/',
+				url: 'http://' + ip + ":" +portNum+ '/initialize/',
 				//data : {dataInitialized: initialized, idNum: idNumber},
 				success: function(data){
 					idNumber=data['idNum'];
@@ -96,12 +99,7 @@ var clearData = function(){
 	enough = false;
 	$('.form5').val('');
 	
-	/* $('.form1').val()='est';
-	$('.form2').val();
-	$('.form3').val();
-	$('.form4').val();
-	$('.formE').val();
-	$('.formD').val(); */
+
 	
 };
 var runExperiment= function(){
@@ -252,7 +250,7 @@ function getFrequencies(){
 		
 	$.ajax({
             type: 'POST',
-            url: 'http://localhost:'+portNum+'/freqFinder/',
+            url: 'http://' + ip + ":" +portNum+'/freqFinder/',
             data : {'idNum':idNumber, 'ambiguous':A, 'distance':d, 'ngWidth':ngWidth},
             success: function(data){
 				displayCounts(data);
@@ -303,6 +301,8 @@ function displayCounts(data){
 
 function getSiteList(string, hits){
 	
+	//var domain = "wikipedia.org";
+	var domain = 'none';
 	var search_type = "Web";
 	var query = string;
 	query = query.replace(" ","+");
@@ -317,8 +317,13 @@ function getSiteList(string, hits){
 	
 	
 	<!--query-->
-	var url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/'+search_type+'?Query=%27'+query+'%27&$top=50&$format=json&$skip='+skipN;
-
+	if(domain == "none"){
+		var url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/'+search_type+'?Query=%27'+query+'%27&$top=50&$format=json&$skip='+skipN;
+	}
+	else{
+		
+		var url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/'+search_type+'?Query=%27'+query+'%27&$top=50&$format=json&$skip='+skipN+"&$site="+domain;
+	}
 	
 	$.ajax({
             type: 'GET',
@@ -392,7 +397,7 @@ function getSiteData(urlX, whichList){
 	if(enough == false){
 		$.ajax({
 				type: 'POST',
-				url: 'http://localhost:'+portNum+'/urlGrab/',
+				url: 'http://' + ip + ":" +portNum+'/urlGrab/',
 				data : {texts : urlX, which: whichList, AmbiguousWord: A, dataInitialized: initialized, idNum: idNumber, dist: d},
 				success: function(data){
 					idNumber=data['idNum'];
@@ -415,77 +420,133 @@ function getSiteData(urlX, whichList){
 
 var draw = function(c1x,c1y,c2x,c2y){
 	
-	var canvas = document.getElementById("canvas1");
-	if (canvas.getContext) {
-		var ctx = canvas.getContext("2d");
+		//this counter counts num of vectors plotted
+		var count = 0;
+		//visualization2
 		
-		var offSetX = 50;
-		var offSetY = 100
+		var d1 = c1x-c1y;
+		var d2 = c1x-c2x;
+		var d3 = c1y-c2y;
+		var d4 = c2x-c2y;
 		
-		//
-		var width = canvas.width - offSetX;
-		var height = canvas.height - offSetY;
+		var diffs = []
+		diffs.push(d1)
+		diffs.push(d2)
+		diffs.push(d3)
+		diffs.push(d4)
 		
-		//set so it starts at origin
-		var offSetY = 0;
-		
-		
-		//draw axis
-		ctx.beginPath();
-		ctx.strokeStyle = '#0000ff'
-		//(0,0)
-		ctx.moveTo(offSetX+1,height+offSetY);
-		//line to (0,1)
-		ctx.lineTo(offSetX+1,offSetY);
-		
-		//(0,0)
-		ctx.moveTo(offSetX,height+offSetY);
-		//line to (1,0)
-		ctx.lineTo(width+offSetX,height+offSetY);
-		
-		ctx.closePath();
-		ctx.stroke();
-		
-		
-		//label axis
-		ctx.font = "12px Arial";
-		ctx.fillText("Correlation with",0,10);
-		ctx.fillText("Meaning Y",0,35);
-		ctx.fillText("Correlation with Meaning X",width-150,height+10);
+		var canvas2 = document.getElementById("canvas2");
 		
 		
 		
-		//color 
-		var classVal = $("input[name=class]:checked").val();
-		console.log(classVal);
-		
-		ctx.beginPath();
-		if(classVal === 'NonJoke'){
-			ctx.strokeStyle = '#ff0000';
-		}
-		else if(classVal === 'Joke'){
-			ctx.strokeStyle = '#00ff00';
-		}
-		else{
-			ctx.strokeStyle = '#0000ff';
+		if (canvas2.getContext) {
+			var ctx2 = canvas2.getContext("2d");
+			
+			for(var i = 0; i < 4; i++){
+			
+			
+				var cd = parseInt(Math.floor(((diffs[i]+2)/4)*10));
+				
+				var cdColorString = "#ff00" + cd + "" + cd;
+				
+				console.log(cdColorString);
+				console.log(cd);
+				
+				ctx2.beginPath();
+				ctx2.strokeStyle = cdColorString;
+				
+				ctx2.strokeRect(i*15, count*15, 15, 15);
+				ctx2.closePath()
+			
+			}
+			
+			
+			
 		}
 		
-		//draw vector
-		//var linePath2 = new Path2D();
-		//ctx.beginPath();
-		ctx.moveTo(c1x*width+offSetX,height-c1y*height+offSetY);
-		ctx.lineTo(c2x*width+offSetX,height-c2y*height+offSetY);
-		ctx.closePath();
-		ctx.stroke();
+		//draw labels
 		
-		//draw arrowhead
-		canvas_arrow(ctx,c1x*width,c1y*height,c2x*width,c2y*height, height, offSetX, offSetY);
+		//draw rectangle with color
 		
-	  }
-	  
+		
+		
+		//visualization 1
+		var canvas = document.getElementById("canvas1");
+		
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+		
+			
+			
+			
+			var offSetX = 50;
+			var offSetY = 100
+			
+			//
+			var width = canvas.width - offSetX;
+			var height = canvas.height - offSetY;
+			
+			//set so it starts at origin
+			var offSetY = 0;
+			
+			
+			//draw axis
+			ctx.beginPath();
+			ctx.strokeStyle = '#0000ff'
+			//(0,0)
+			ctx.moveTo(offSetX+1,height+offSetY);
+			//line to (0,1)
+			ctx.lineTo(offSetX+1,offSetY);
+			
+			//(0,0)
+			ctx.moveTo(offSetX,height+offSetY);
+			//line to (1,0)
+			ctx.lineTo(width+offSetX,height+offSetY);
+			
+			ctx.closePath();
+			ctx.stroke();
+			
+			
+			//label axis
+			ctx.font = "12px Arial";
+			ctx.fillText("Correlation with",0,10);
+			ctx.fillText("Meaning Y",0,35);
+			ctx.fillText("Correlation with Meaning X",width-150,height+10);
+			
+			
+			
+			//color 
+			var classVal = $("input[name=class]:checked").val();
+			console.log(classVal);
+			
+			ctx.beginPath();
+			if(classVal === 'NonJoke'){
+				ctx.strokeStyle = '#ff0000';
+			}
+			else if(classVal === 'Joke'){
+				ctx.strokeStyle = '#00ff00';
+			}
+			else{
+				ctx.strokeStyle = '#0000ff';
+			}
+			
+			//draw vector
+			//var linePath2 = new Path2D();
+			//ctx.beginPath();
+			ctx.moveTo(c1x*width+offSetX,height-c1y*height+offSetY);
+			ctx.lineTo(c2x*width+offSetX,height-c2y*height+offSetY);
+			ctx.closePath();
+			ctx.stroke();
+			
+			//draw arrowhead
+			canvas_arrow(ctx,c1x*width,c1y*height,c2x*width,c2y*height, height, offSetX, offSetY);
+			$('.nav-tabs a[href="#vistab2"]').tab('show');
+			$('.nav-tabs a[href="#vistab1"]').tab('show');
+			
+		  }
+		  
 		    
 	}
-
 //method obtained from stackoverflow.com
 //method obtained from stackoverflow.com
 function canvas_arrow(context, fromx, fromy, tox, toy, height, offSetX, offSetY){

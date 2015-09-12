@@ -15,6 +15,11 @@ body {
 	color: #121212;
 }
 
+#tabbedVisualizationContainer{
+	
+	width: 350px;
+	height: 350px;
+}
 #freqPane{
 	background-color: #F0F0FF;
 	left: 100px;
@@ -38,7 +43,7 @@ body {
 }
 .resultsListP1{
 	overflow: scroll;
-	width:270px;
+	width:250px;
 	height:500px;
 }
 

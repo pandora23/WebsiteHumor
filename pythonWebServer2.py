@@ -34,7 +34,7 @@ import re
 
 
 from tornado.options import define, options
-define("port", default=8425, type=int)
+define("port", default=8445, type=int)
 
 def css_files(self):
     return "style.css"
@@ -47,6 +47,7 @@ allData=object;
 
 class DataPoint:
     def __init__(self):
+        self.id=-1;
         self.P1Dat = ""
         self.P2Dat = ""
         self.M1Dat = ""
@@ -64,11 +65,12 @@ class Data:
 
     def __init__(self):
         self.count = 0;
-        self.instances = list();
+        self.instances = {};
         
     def setNewData(self):
         dp = DataPoint()
-        self.instances.append(dp)
+        dp.id=self.count;
+        self.instances.update({dp.id:dp})
         
         
 def signal_handler(signum, frame):
